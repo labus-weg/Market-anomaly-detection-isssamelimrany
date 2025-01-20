@@ -60,14 +60,48 @@ st.write("Provide financial market data to predict potential market crashes and 
 
 # Loading the Excel file
 @st.cache_data
-def load_data(file_path):
-    data = pd.read_excel(file_path)
-    data['Date'] = pd.to_datetime(data['Date']).dt.date  
-    data.set_index('Date', inplace=True)  
+def load_data(file):
+    data = pd.read_excel(file)
+    
+    # Rename the 'Y' column to 'Date'
+    data.rename(columns={'Y': 'Date'}, inplace=True)
+    
+    # Convert 'Date' to datetime format
+    data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
+    data.dropna(subset=['Date'], inplace=True)  # Drop rows with invalid dates
+    data.set_index('Date', inplace=True)  # Set 'Date' as the index
+    
     return data
+#updated the above code titled "Loading Excel file" to fit "Y" as date heading
 
-file_path = "data_1.xlsx" 
-data = load_data(file_path)
+# replacing lines 70-71 with the code below
+# file_path = "data_1.xlsx" 
+# data = load_data(file_path)
+
+# File upload section
+uploaded_file = st.sidebar.file_uploader("Choose a financial dataset (Excel file)", type=["xlsx"])
+
+if uploaded_file:
+    try:
+        # Use the uploaded file
+        data = load_data(uploaded_file)
+        st.success("File successfully loaded!")
+        st.write("### Preview of Uploaded Data:")
+        st.dataframe(data.head())  # Show a preview of the data
+
+        # Debugging: Print the column names of the data
+        st.write("### Column Names:")
+        st.write(data.columns)  # Display column names
+    except Exception as e:
+        st.error(f"Error loading the file: {e}")
+        st.stop()  # Stop further execution if loading fails
+else:
+    st.warning("Please upload a dataset to proceed.")
+    st.stop()  # Stop execution if no file is uploaded
+
+
+# Suggestion: Allow users to upload their own Excel file/custom datasets via Streamlit's file uploader
+# for versatility & interactivity instead of sticking with hardcoded options for file paths.
 
 # Dropdown to select an example
 example_names = data.index.tolist()  # the list of dates
