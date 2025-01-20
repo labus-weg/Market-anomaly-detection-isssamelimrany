@@ -63,18 +63,28 @@ st.write("Provide financial market data to predict potential market crashes and 
 def load_data(file):
     data = pd.read_excel(file)
     
-    # Rename the 'Y' column to 'Date'
-    data.rename(columns={'Y': 'Date'}, inplace=True)
+    # Debugging step to check the columns
+    st.write("### Column Names:")
+    st.write(data.columns)  # Display column names
+    
+    # Check if 'Data' column exists
+    if 'Data' in data.columns:
+        # Rename the 'Data' column to 'Date'
+        data.rename(columns={'Data': 'Date'}, inplace=True)
+    else:
+        st.error("No column 'Data' found in the dataset.")
+        st.stop()
     
     # Convert 'Date' to datetime format
-    data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
+    data['Date'] = pd.to_datetime(data['Date'], errors='coerce')  # handle invalid date format
     data.dropna(subset=['Date'], inplace=True)  # Drop rows with invalid dates
     data.set_index('Date', inplace=True)  # Set 'Date' as the index
     
     return data
-#updated the above code titled "Loading Excel file" to fit "Y" as date heading
 
-# replacing lines 70-71 with the code below
+#updated the above code titled "Loading Excel file" to fit "Data" as date heading
+
+# replacing the following two lines with the code below
 # file_path = "data_1.xlsx" 
 # data = load_data(file_path)
 
